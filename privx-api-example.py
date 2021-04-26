@@ -3,18 +3,21 @@ import urllib
 import base64
 import json
 import secrets
+import os
+from dotenv import load_dotenv
 
-base_url = ""
+load_dotenv()
 
+BASE_URL = os.environ.get('BASE_URL')
 # for API clients use function get_token
-api_client_id = ""
-api_client_secret = ""
-oauth_client_id = ""
-oauth_client_secret = ""
+API_CLIENT_ID = os.environ.get('API_CLIENT_ID')
+API_CLIENT_SECRET = os.environ.get('API_CLIENT_SECRET')
+OAUTH_CLIENT_ID = os.environ.get('OAUTH_CLIENT_ID')
+OAUTH_CLIENT_SECRET = os.environ.get('OAUTH_CLIENT_SECRET')
 
 # for user login use function get_user_token
-privx_username = ""
-privx_password = ""
+PRIVX_USERNAME = os.environ.get('PRIVX_USERNAME')
+PRIVX_PASSWORD = os.environ.get('PRIVX_PASSWORD')
 
 
 def get_login_token():
@@ -23,7 +26,7 @@ def get_login_token():
     :return: login_token
     """
     login_state = secrets.token_urlsafe(32)
-    url = f"{base_url}/auth/api/v1/oauth/authorize"
+    url = f"{BASE_URL}/auth/api/v1/oauth/authorize"
 
     headers = {
         "Content-Type": "application/json"
@@ -50,11 +53,11 @@ def login(login_token):
     :param login_token:
     :return: authorization code for use with the get_user_token function
     """
-    url = f"{base_url}/auth/api/v1/login"
+    url = f"{BASE_URL}/auth/api/v1/login"
 
     payload = {
-        "username": privx_username,
-        "password": privx_password,
+        "username": PRIVX_USERNAME,
+        "password": PRIVX_PASSWORD,
         "token": login_token
     }
 
@@ -73,7 +76,7 @@ def get_user_token():
     Gets token based off of user credentials, depends on login() and get_login_token() functions
     :return: token string
     """
-    url = f"{base_url}/auth/api/v1/oauth/token"
+    url = f"{BASE_URL}/auth/api/v1/oauth/token"
 
     login_token = get_login_token()
     auth_code = login(login_token)
@@ -96,16 +99,16 @@ def get_token():
     Gets token based off of API_Client credentials
     :return: token string
     """
-    url = f"{base_url}/auth/api/v1/oauth/token"
+    url = f"{BASE_URL}/auth/api/v1/oauth/token"
 
     payload = {
         "grant_type": "password",
-        "username": f"{api_client_id}",
-        "password": f"{api_client_secret}"
+        "username": f"{API_CLIENT_ID}",
+        "password": f"{API_CLIENT_SECRET}"
     }
 
     basic_auth = base64.b64encode(
-        f"{oauth_client_id}:{oauth_client_secret}".encode('utf-8')
+        f"{OAUTH_CLIENT_ID}:{OAUTH_CLIENT_SECRET}".encode('utf-8')
     )
 
     headers = {
@@ -126,7 +129,7 @@ def get_roles(token):
     :param token: retrieved by function get_user_token or get_token
     :return: json object containing role information
     """
-    url = f'{base_url}/role-store/api/v1/roles'
+    url = f'{BASE_URL}/role-store/api/v1/roles'
 
     headers = {
         "Accept": "application/json",
@@ -150,7 +153,7 @@ def get_hosts(token):
     :param token: retrieved by function get_user_token or get_token
     :return: json object containing host information
     """
-    url = f"{base_url}/host-store/api/v1/hosts"
+    url = f"{BASE_URL}/host-store/api/v1/hosts"
 
     headers = {
         "Accept": "application/json",
@@ -174,7 +177,7 @@ def get_users(token):
     :param token: retrieved by function get_user_token or get_token
     :return: json object containing user information
     """
-    url = f"{base_url}/local-user-store/api/v1/users"
+    url = f"{BASE_URL}/local-user-store/api/v1/users"
 
     headers = {
         "Accept": "application/json",
@@ -200,7 +203,7 @@ def get_license(token):
     :param token: retrieved by function get_user_token or get_token
     :return: None
     """
-    url = f"{base_url}/license-manager/api/v1/license"
+    url = f"{BASE_URL}/license-manager/api/v1/license"
 
     headers = {
         "Accept": "application/json",
@@ -219,7 +222,7 @@ def deactivate_license(token):
     :param token: retrieved by function get_user_token or get_token
     :return: None
     """
-    url = f"{base_url}/license-manager/api/v1/license/deactivate"
+    url = f"{BASE_URL}/license-manager/api/v1/license/deactivate"
 
     headers = {
         "Authorization": f"Bearer {token}"
@@ -241,7 +244,7 @@ def activate_license(token, license_code):
     :param license_code: license code to activate
     :return: Json object containing license information
     """
-    url = f"{base_url}/license-manager/api/v1/license"
+    url = f"{BASE_URL}/license-manager/api/v1/license"
 
     headers = {
         "Accept": "application/json",
